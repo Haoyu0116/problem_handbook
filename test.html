@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线问题定位手册</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a5fb4;
+            --primary-dark: #0d3a78;
+            --secondary: #5d9cec;
+            --light-bg: #f0f7ff;
+            --dark-text: #2c3e50;
+            --light-text: #5a6a85;
+            --card-bg: #ffffff;
+            --border-color: #e1eaf3;
+            --success: #2ec27e;
+            --warning: #e5a50a;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e6f7ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 30px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .card-content {
+            padding: 30px;
+        }
+        
+        .search-box {
+            display: flex;
+            height: 65px;
+            box-shadow: 0 6px 18px rgba(26, 95, 180, 0.18);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 0 25px;
+            font-size: 1.15rem;
+            outline: none;
+            background: white;
+            color: var(--dark-text);
+        }
+        
+        .search-input::placeholder {
+            color: #a0aec0;
+        }
+        
+        .search-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .hint {
+            text-align: center;
+            color: var(--light-text);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .result-section {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-title {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .problem-info {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .solution-section {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid var(--secondary);
+        }
+        
+        h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .steps {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .step {
+            margin-bottom: 20px;
+            padding-left: 35px;
+            position: relative;
+            counter-increment: step-counter;
+        }
+        
+        .step:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--primary);
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 0.95rem;
+            line-height: 26px;
+            font-weight: 600;
+        }
+        
+        .code {
+            font-family: 'Consolas', monospace;
+            background: #2c3e50;
+            color: #f1f5f9;
+            padding: 5px 12px;
+            border-radius: 6px;
+            margin: 0 3px;
+            display: inline-block;
+            line-height: 1.6;
+        }
+        
+        .code-block {
+            display: block;
+            margin: 12px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #2c3e50;
+            color: #f1f5f9;
+            font-family: 'Consolas', monospace;
+            font-size: 1rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .note {
+            background: #fff9db;
+            border-left: 4px solid #f59f00;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+        
+        .deploy-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .deploy-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+        
+        .deploy-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .deploy-card h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .deploy-card ol {
+            padding-left: 25px;
+        }
+        
+        .deploy-card li {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .deploy-card li:before {
+            content: counter(step);
+            counter-increment: step;
+            position: absolute;
+            left: -25px;
+            top: 0;
+            background: var(--primary);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 0.8rem;
+            line-height: 22px;
+        }
+        
+        .deploy-logo {
+            font-size: 3rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .platform-name {
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-block {
+            display: block;
+            text-align: center;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--light-text);
+            font-size: 1rem;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        @media (max-width: 768px) {
+            .search-box {
+                height: 55px;
+            }
+            
+            .search-button {
+                padding: 0 25px;
+            }
+            
+            .card-header {
+                font-size: 1.2rem;
+                padding: 15px 20px;
+            }
+            
+            .card-content {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-book-medical"></i>
+            </div>
+            <h1>在线问题定位手册</h1>
+            <p class="subtitle">通过错误码或关键词快速查找问题原因及解决方案 - 支持互联网访问</p>
+        </header>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-search"></i>
+                <span>问题搜索</span>
+            </div>
+            <div class="card-content">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="输入错误码或关键词，如：0x00000001 或 丢闭环...">
+                    <button class="search-button" id="searchButton">
+                        <i class="fas fa-search"></i> 搜索
+                    </button>
+                </div>
+                <p class="hint">
+                    <i class="fas fa-lightbulb"></i> 提示：目前支持搜索 "0x00000001" 或 "丢闭环"
+                </p>
+                
+                <div class="result-section" id="resultSection">
+                    <h2 class="result-title">
+                        <i class="fas fa-clipboard-check"></i> 问题解决方案
+                    </h2>
+                    
+                    <div class="problem-info">
+                        <h3><i class="fas fa-bug"></i> 问题描述</h3>
+                        <p>SPM模式逻辑轴位置跳变丢闭环</p>
+                    </div>
+                    
+                    <div class="solution-section">
+                        <h3><i class="fas fa-tools"></i> 解决方法</h3>
+                        <p>查看IFM参考光测量光是否发生跳变，具体步骤如下：</p>
+                        
+                        <div class="steps">
+                            <h3><i class="fas fa-microchip"></i> 硬件检查</h3>
+                            <div class="step">检查光纤连接情况，必要时重新插拔光纤</div>
+                        </div>
+                        
+                        <div class="steps">
+                            <h3><i class="fas fa-laptop-code"></i> 软件操作步骤 (在L3服务器: 192.168.6.103中执行)</h3>
+                            <div class="step">进入指定目录：
+                                <div class="code-block">cd SW/L3/helf/software/gpb</div>
+                            </div>
+                            <div class="step">检查当前锁定状态：
+                                <div class="code-block">./ltbus_dev_rw_tool 1 6 1 1 0x5244</div>
+                                <div class="note">
+                                    <i class="fas fa-info-circle"></i> 结果说明：<br>
+                                    - <span class="code">0x0</span> 或 <span class="code">0x2</span>：失锁状态<br>
+                                    - <span class="code">0x3</span>：锁定状态
+                                </div>
+                            </div>
+                            <div class="step">执行锁定操作：
+                                <div class="code-block">./ltbus_dev_rw_tool 2 6 1 1 0x4120 0x1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>部署到互联网指南</span>
+            </div>
+            <div class="card-content">
+                <h3><i class="fas fa-globe"></i> 如何让他人通过互联网访问本手册</h3>
+                <p>选择以下任一平台部署您的网页：</p>
+                
+                <div class="deploy-section">
+                    <div class="deploy-card">
+                        <div class="deploy-logo">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div class="platform-name">GitHub Pages</div>
+                        <ol>
+                            <li>创建GitHub账号（免费）</li>
+                            <li>新建一个代码仓库（Repository）</li>
+                            <li>将本HTML文件上传到仓库</li>
+                            <li>在仓库设置中启用GitHub Pages</li>
+                            <li>选择main/master分支作为源</li>
+                            <li>保存后获得访问URL：username.github.io/repo</li>
+                        </ol>
+                        <a href="https://pages.github.com" target="_blank" class="btn btn-block">前往GitHub Pages</a>
+                    </div>
+                    
+                    <div class="deploy-card">
+                        <div class="deploy-logo">
+                            <i class="fab fa-microsoft"></i>
+                        </div>
+                        <div class="platform-name">Azure Static Web Apps</div>
+                        <ol>
+                            <li>注册Microsoft Azure账号（有免费额度）</li>
+                            <li>创建"Static Web App"资源</li>
+                            <li>连接您的GitHub/GitLab仓库</li>
+                            <li>选择分支和构建设置（无需构建）</li>
+                            <li>点击创建并等待部署完成</li>
+                            <li>通过提供的*.azurestaticapps.net访问</li>
+                        </ol>
+                        <a href="https://azure.microsoft.com/zh-cn/services/app-service/static/" target="_blank" class="btn btn-block">了解Azure静态应用</a>
+                    </div>
+                    
+                    <div class="deploy-card">
+                        <div class="deploy-logo">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="platform-name">传统Web服务器</div>
+                        <ol>
+                            <li>购买域名和虚拟主机（如阿里云、腾讯云）</li>
+                            <li>通过FTP上传HTML文件到服务器</li>
+                            <li>将文件放在public_html或wwwroot目录</li>
+                            <li>通过您的域名访问（如www.yourdomain.com）</li>
+                            <li>推荐使用HTTPS确保安全</li>
+                            <li>可配置CDN加速全球访问</li>
+                        </ol>
+                        <a href="https://cn.aliyun.com/product/ecs" target="_blank" class="btn btn-block">查看云服务器</a>
+                    </div>
+                </div>
+                
+                <div class="note" style="margin-top: 30px;">
+                    <h3><i class="fas fa-tips"></i> 部署提示：</h3>
+                    <p>1. GitHub Pages是最简单的免费部署方案，适合个人和小型项目</p>
+                    <p>2. 如果您的网页包含敏感信息，请使用密码保护或私有部署</p>
+                    <p>3. 部署后测试在不同设备和浏览器上的兼容性</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>在线问题定位手册 v1.0 | 技术支持: tech-support@example.com | 最后更新: 2023年10月</p>
+            <p>© 2023 问题诊断团队 - 让技术问题解决更简单</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const resultSection = document.getElementById('resultSection');
+            
+            // 支持的搜索词
+            const validSearchTerms = ['0x00000001', '丢闭环'];
+            
+            // 搜索功能
+            function performSearch() {
+                const searchTerm = searchInput.value.trim();
+                
+                if (validSearchTerms.includes(searchTerm)) {
+                    resultSection.style.display = 'block';
+                    
+                    // 滚动到结果区域
+                    resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // 添加搜索历史记录
+                    addSearchHistory(searchTerm);
+                }
+            }
+            
+            // 添加搜索历史记录
+            function addSearchHistory(term) {
+                let history = localStorage.getItem('searchHistory') || '[]';
+                history = JSON.parse(history);
+                
+                // 避免重复添加
+                if (!history.includes(term)) {
+                    history.push(term);
+                    localStorage.setItem('searchHistory', JSON.stringify(history));
+                }
+            }
+            
+            // 绑定搜索按钮事件
+            searchButton.addEventListener('click', performSearch);
+            
+            // 绑定回车键事件
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // 初始状态设置
+            resultSection.style.display = 'none';
+            
+            // 添加示例搜索词功能
+            const placeholderText = '输入错误码或关键词，如：0x00000001 或 丢闭环...';
+            let placeholderIndex = 0;
+            
+            searchInput.addEventListener('focus', function() {
+                this.placeholder = '';
+                clearInterval(placeholderInterval);
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                this.placeholder = placeholderText;
+            });
+        });
+    </script>
+</body>
+</html>
